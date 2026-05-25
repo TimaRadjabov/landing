@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';
@@ -10,13 +10,25 @@ import { PROJECTS, imageUrl } from '../data/projectsData';
 export default function Projects() {
   const [activeProject, setActiveProject] = useState(0);
   const [mainSwiper, setMainSwiper] = useState(null);
+  const [loadedSlides, setLoadedSlides] = useState(() => new Set([0, 1]));
 
   const current = PROJECTS[activeProject];
 
   const handleThumbClick = (i) => {
     setActiveProject(i);
+    setLoadedSlides(new Set([0, 1]));
     if (mainSwiper) mainSwiper.slideTo(0);
   };
+
+  const handleSlideChange = useCallback((swiper) => {
+    const i = swiper.activeIndex;
+    setLoadedSlides(prev => {
+      const next = new Set(prev);
+      next.add(i);
+      next.add(i + 1);
+      return next;
+    });
+  }, []);
 
   return (
     <section className="section" id="projects">
@@ -42,17 +54,20 @@ export default function Projects() {
             autoplay={{ delay: 2000, disableOnInteraction: false, pauseOnMouseEnter: true }}
             slidesPerView={1}
             onSwiper={setMainSwiper}
+            onSlideChange={handleSlideChange}
             className="projects-main__swiper"
           >
             {current.images.map((img, i) => (
               <SwiperSlide key={i}>
                 <div className="projects-main__slide">
-                  <img
-                    src={imageUrl(current.folder, img)}
-                    alt={`${current.title} — фото ${i + 1}`}
-                    className="projects-main__img"
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                  />
+                  {loadedSlides.has(i) && (
+                    <img
+                      src={imageUrl(current.folder, img)}
+                      alt={`${current.title} — фото ${i + 1}`}
+                      className="projects-main__img"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                    />
+                  )}
                 </div>
               </SwiperSlide>
             ))}
