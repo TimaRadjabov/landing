@@ -84,9 +84,16 @@ const PROJECTS = [
 ];
 
 function imageUrl(folder, image) {
-  // Vite dev server fails to resolve %2C (comma) and %2B (plus) in static paths
+  const enc = s => encodeURIComponent(s).replace(/%2C/gi, ',').replace(/%2B/gi, '+');
+  // Serve WebP version (all images pre-converted, ~95% smaller)
+  const webpName = image.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  return `/images/${enc(folder)}/${enc(webpName)}`;
+}
+
+// Original URL for <picture> fallback
+function imageUrlOriginal(folder, image) {
   const enc = s => encodeURIComponent(s).replace(/%2C/gi, ',').replace(/%2B/gi, '+');
   return `/images/${enc(folder)}/${enc(image)}`;
 }
 
-export { PROJECTS, imageUrl };
+export { PROJECTS, imageUrl, imageUrlOriginal };

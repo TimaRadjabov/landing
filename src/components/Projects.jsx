@@ -1,33 +1,70 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
-import { PROJECTS, imageUrl } from '../data/projectsData';
+import { PROJECTS, imageUrl, imageUrlOriginal } from '../data/projectsData';
+
+// Сколько слайдов вперёд подгружать заранее
+const PRELOAD_AHEAD = 3;
+
+function SlideImage({ folder, img, index, alt, isFirst }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className="projects-main__slide">
+      {/* Skeleton-заглушка пока картинка грузится */}
+      {!loaded && <div className="projects-main__skeleton" />}
+      <picture>
+        <source srcSet={imageUrl(folder, img)} type="image/webp" />
+        <img
+          src={imageUrlOriginal(folder, img)}
+          alt={alt}
+          className={`projects-main__img${loaded ? ' projects-main__img--loaded' : ''}`}
+          loading={isFirst ? 'eager' : 'lazy'}
+          fetchPriority={isFirst ? 'high' : 'low'}
+          decoding={isFirst ? 'sync' : 'async'}
+          onLoad={() => setLoaded(true)}
+        />
+      </picture>
+    </div>
+  );
+}
 
 export default function Projects() {
   const [activeProject, setActiveProject] = useState(0);
   const [mainSwiper, setMainSwiper] = useState(null);
-  const [loadedSlides, setLoadedSlides] = useState(() => new Set([0, 1]));
+  const [visibleSlides, setVisibleSlides] = useState(() => new Set([0, 1, 2, 3]));
 
   const current = PROJECTS[activeProject];
 
   const handleThumbClick = (i) => {
     setActiveProject(i);
-    setLoadedSlides(new Set([0, 1]));
+    setVisibleSlides(new Set([0, 1, 2, 3]));
     if (mainSwiper) mainSwiper.slideTo(0);
   };
 
   const handleSlideChange = useCallback((swiper) => {
     const i = swiper.activeIndex;
-    setLoadedSlides(prev => {
+    setVisibleSlides(prev => {
       const next = new Set(prev);
-      next.add(i);
-      next.add(i + 1);
+      for (let j = 0; j <= PRELOAD_AHEAD; j++) next.add(i + j);
       return next;
     });
+  }, []);
+
+  // Preload первое изображение следующего проекта при наведении на thumb
+  const handleThumbHover = useCallback((i) => {
+    const p = PROJECTS[i];
+    if (p && p.images[0]) {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'image';
+      link.href = imageUrl(p.folder, p.images[0]);
+      document.head.appendChild(link);
+    }
   }, []);
 
   return (
@@ -36,7 +73,7 @@ export default function Projects() {
         <div className="section__label">03 · Работы</div>
         <h2 className="section__title">Объекты, которые мы сдали</h2>
 
-        {/* Main slider — все фото выбранного проекта */}
+        {/* Main slider */}
         <div className="projects-main">
           <div className="projects-main__header">
             <h3 className="projects-main__title">{current.title}</h3>
@@ -48,10 +85,9 @@ export default function Projects() {
             modules={[Pagination, Autoplay, EffectFade]}
             effect="fade"
             fadeEffect={{ crossFade: true }}
-            speed={800}
-            cssEase="ease-in"
+            speed={600}
             pagination={{ clickable: true, dynamicBullets: true }}
-            autoplay={{ delay: 2000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+            autoplay={{ delay: 3500, disableOnInteraction: true, pauseOnMouseEnter: true }}
             slidesPerView={1}
             onSwiper={setMainSwiper}
             onSlideChange={handleSlideChange}
@@ -59,22 +95,21 @@ export default function Projects() {
           >
             {current.images.map((img, i) => (
               <SwiperSlide key={i}>
-                <div className="projects-main__slide">
-                  {loadedSlides.has(i) && (
-                    <img
-                      src={imageUrl(current.folder, img)}
-                      alt={`${current.title} — фото ${i + 1}`}
-                      className="projects-main__img"
-                      loading={i === 0 ? 'eager' : 'lazy'}
-                    />
-                  )}
-                </div>
+                {visibleSlides.has(i) && (
+                  <SlideImage
+                    folder={current.folder}
+                    img={img}
+                    index={i}
+                    alt={`${current.title} — фото ${i + 1}`}
+                    isFirst={i === 0}
+                  />
+                )}
               </SwiperSlide>
             ))}
           </Swiper>
         </div>
 
-        {/* Thumb slider — превью проектов */}
+        {/* Thumb slider */}
         <div className="projects-thumbs">
           <Swiper
             modules={[Navigation]}
@@ -88,14 +123,19 @@ export default function Projects() {
                 key={i}
                 className={i === activeProject ? 'projects-thumbs__slide--active' : ''}
                 onClick={() => handleThumbClick(i)}
+                onMouseEnter={() => handleThumbHover(i)}
               >
                 <div className="projects-thumbs__slide">
-                  <img
-                    src={imageUrl(p.folder, p.images[0])}
-                    alt={p.title}
-                    className="projects-thumbs__img"
-                    loading="lazy"
-                  />
+                  <picture>
+                    <source srcSet={imageUrl(p.folder, p.images[0])} type="image/webp" />
+                    <img
+                      src={imageUrlOriginal(p.folder, p.images[0])}
+                      alt={p.title}
+                      className="projects-thumbs__img"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                   <span className="projects-thumbs__label">{p.title}</span>
                 </div>
               </SwiperSlide>
