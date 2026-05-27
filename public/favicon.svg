@@ -1,0 +1,51 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <title>Pulse.remont</title>
+
+  <!-- Background -->
+  <rect width="400" height="400" rx="72" fill="#0D1B2A"/>
+
+  <!-- Chimney (behind roof) -->
+  <rect x="236" y="116" width="13" height="24" rx="2" fill="#172840" stroke="#2A4668" stroke-width="1"/>
+
+  <!-- Roof (filled silhouette) -->
+  <polygon points="88,190 200,115 312,190" fill="#172840" stroke="#2A4668" stroke-width="1"/>
+
+  <!-- House body (filled silhouette) -->
+  <rect x="108" y="190" width="184" height="100" rx="1" fill="#172840" stroke="#2A4668" stroke-width="1"/>
+
+  <!-- Windows — lit from inside (blue-tinted, no stroke) -->
+  <rect x="122" y="204" width="32" height="26" rx="2" fill="#1B3E62"/>
+  <rect x="246" y="204" width="32" height="26" rx="2" fill="#1B3E62"/>
+
+  <!-- Door — arch, teal accent -->
+  <path d="M 181,290 L 181,263 Q 181,253 200,253 Q 219,253 219,263 L 219,290"
+        fill="#0D1B2A" stroke="#5DCAA5" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- RED pulse: flat line (critical/dead state) → dramatic spike through house -->
+  <polyline
+    points="15,240 108,240 129,174 164,306 199,174"
+    fill="none" stroke="#E03535" stroke-width="3"
+    stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- GREEN pulse: from peak → healthy rhythm exits house → new life -->
+  <polyline
+    points="199,174 230,240 292,240 318,217 344,263 367,240 392,240"
+    fill="none" stroke="#5DCAA5" stroke-width="3"
+    stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Divider line -->
+  <line x1="145" y1="312" x2="255" y2="312" stroke="#2A4668" stroke-width="0.5"/>
+
+  <!-- Text: PULSE (large, white, tracked) -->
+  <text x="200" y="332"
+        text-anchor="middle" dominant-baseline="central"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="21" font-weight="700" fill="#FFFFFF" letter-spacing="4">PULSE</text>
+
+  <!-- Text: .remont (small, teal) -->
+  <text x="202" y="358"
+        text-anchor="middle" dominant-baseline="central"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="13" font-weight="400" fill="#5DCAA5" letter-spacing="2">.remont</text>
+
+</svg>
