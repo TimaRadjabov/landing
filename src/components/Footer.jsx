@@ -5,7 +5,7 @@ export default function Footer() {
       <div className="footer__links">
         <span className="footer__link">Telegram</span>
         <span className="footer__link">WhatsApp</span>
-        <span className="footer__link">+7 ___ ___ __ __</span>
+        <a href="tel:89376200613" className="footer__link">8 (937) 620-06-13</a>
       </div>
     </footer>
   );
