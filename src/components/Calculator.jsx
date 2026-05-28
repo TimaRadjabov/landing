@@ -49,8 +49,10 @@ function formatPrice(n) {
 
 export default function Calculator() {
   const [type, setType] = useState('turnkey');
-  const [area, setArea] = useState(62);
+  const [area, setArea] = useState(10);
   const [condition, setCondition] = useState('secondary');
+
+  const minArea = type === 'turnkey' ? 1 : 10;
 
   const price = calcPrice(type, area, condition);
 
@@ -69,7 +71,11 @@ export default function Calculator() {
                   <button
                     key={t.id}
                     className={`calculator__option${type === t.id ? ' calculator__option--active' : ''}`}
-                    onClick={() => setType(t.id)}
+                    onClick={() => {
+                      const newMin = t.id === 'turnkey' ? 1 : 10;
+                      setType(t.id);
+                      if (area < newMin) setArea(newMin);
+                    }}
                   >
                     {t.label}
                   </button>
@@ -85,7 +91,7 @@ export default function Calculator() {
               <input
                 type="range"
                 className="calculator__slider"
-                min="10"
+                min={minArea}
                 max="200"
                 value={area}
                 onChange={(e) => setArea(Number(e.target.value))}
