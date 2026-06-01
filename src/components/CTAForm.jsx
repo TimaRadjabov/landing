@@ -13,6 +13,7 @@ function formatPhone(value) {
 export default function CTAForm() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState(STATUS.IDLE);
   const [errorText, setErrorText] = useState('');
@@ -33,6 +34,7 @@ export default function CTAForm() {
         body: JSON.stringify({
           name: name.trim(),
           phone: phone.trim(),
+          address: address.trim(),
           message: message.trim(),
           source: 'cta',
         }),
@@ -50,6 +52,7 @@ export default function CTAForm() {
   const handleReset = () => {
     setName('');
     setPhone('');
+    setAddress('');
     setMessage('');
     setStatus(STATUS.IDLE);
     setErrorText('');
@@ -104,9 +107,17 @@ export default function CTAForm() {
               disabled={status === STATUS.LOADING}
               required
             />
+            <input
+              type="text"
+              className="cta__field"
+              placeholder="Адрес объекта"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              disabled={status === STATUS.LOADING}
+            />
             <textarea
               className="cta__field cta__field--area"
-              placeholder="Адрес объекта и краткое описание"
+              placeholder="Краткое описание работ"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               disabled={status === STATUS.LOADING}

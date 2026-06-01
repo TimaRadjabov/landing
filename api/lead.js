@@ -13,6 +13,7 @@ function formatMessage(body) {
     `<b>Телефон:</b> ${body.phone}`,
   ];
   if (body.message) lines.push(`<b>Сообщение:</b> ${body.message}`);
+  if (body.address) lines.push(`<b>Адрес:</b> ${body.address}`);
   if (body.calcData) {
     lines.push('', '<b>Данные калькулятора:</b>');
     lines.push(`Тип: ${body.calcData.type}`);
@@ -85,7 +86,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { name, phone, message, source, calcData } = req.body;
+    const { name, phone, address, message, source, calcData } = req.body;
 
     if (!phone || phone.replace(/\D/g, '').length < 10) {
       return res.status(400).json({ error: 'Некорректный номер телефона' });
@@ -99,6 +100,7 @@ module.exports = async function handler(req, res) {
     const { error: dbError } = await supabase.from('leads').insert({
       name: name || '',
       phone: phone.replace(/\D/g, ''),
+      address: address || '',
       message: message || '',
       source: source || 'cta',
       calc_data: calcData || null,
@@ -108,7 +110,7 @@ module.exports = async function handler(req, res) {
       console.error('Supabase error:', dbError);
     }
 
-    const tgResult = await sendTelegram(formatMessage({ name, phone, message, source, calcData }));
+    const tgResult = await sendTelegram(formatMessage({ name, phone, address, message, source, calcData }));
 
     return res.status(200).json({ ok: true, telegram: !!tgResult });
   } catch (e) {

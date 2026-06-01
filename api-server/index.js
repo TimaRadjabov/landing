@@ -73,6 +73,7 @@ function formatTelegramMessage(lead) {
     `<b>Имя:</b> ${lead.name || 'Не указано'}`,
     `<b>Телефон:</b> ${lead.phone}`,
   ];
+  if (lead.address) lines.push(`<b>Адрес:</b> ${lead.address}`);
   if (lead.message) lines.push(`<b>Сообщение:</b> ${lead.message}`);
   if (lead.calcData) {
     lines.push(``, `<b>Данные калькулятора:</b>`);
@@ -92,7 +93,7 @@ app.use(express.json());
 
 app.post('/api/lead', async (req, res) => {
   try {
-    const { name, phone, message, source, calcData } = req.body;
+    const { name, phone, address, message, source, calcData } = req.body;
 
     // Валидация
     if (!phone || phone.replace(/\D/g, '').length < 10) {
@@ -103,6 +104,7 @@ app.post('/api/lead', async (req, res) => {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       name: name || '',
       phone: phone.replace(/\D/g, ''),
+      address: address || '',
       message: message || '',
       source: source || 'cta',
       calcData: calcData || null,
@@ -119,6 +121,7 @@ app.post('/api/lead', async (req, res) => {
         .insert({
           name: lead.name,
           phone: lead.phone,
+          address: lead.address || null,
           message: lead.message,
           source: lead.source,
           calc_data: lead.calcData,
