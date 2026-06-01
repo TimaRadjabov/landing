@@ -25,27 +25,44 @@ function formatMessage(body) {
 }
 
 function sendTelegram(text) {
-  const token = process.env.TG_BOT_TOKEN;
-  const chatId = process.env.TG_CHAT_ID;
-  if (!token || !chatId) return;
+  return new Promise((resolve) => {
+    const token = process.env.TG_BOT_TOKEN;
+    const chatId = process.env.TG_CHAT_ID;
+    if (!token || !chatId) {
+      console.log('Telegram skipped: no token or chatId');
+      return resolve(null);
+    }
 
-  const body = JSON.stringify({
-    chat_id: chatId,
-    text,
-    parse_mode: 'HTML',
-  });
+    const body = JSON.stringify({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+    });
 
-  const url = new URL(`${TELEGRAM_API}/bot${token}/sendMessage`);
-  const req = https.request(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body),
-    },
+    const url = new URL(`${TELEGRAM_API}/bot${token}/sendMessage`);
+    const req = https.request(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    });
+
+    let data = '';
+    req.on('response', (res) => {
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        console.log('Telegram response:', data);
+        resolve(data);
+      });
+    });
+    req.on('error', (e) => {
+      console.error('Telegram error:', e.message);
+      resolve(null);
+    });
+    req.write(body);
+    req.end();
   });
-  req.on('error', () => {});
-  req.write(body);
-  req.end();
 }
 
 module.exports = async function handler(req, res) {
@@ -91,9 +108,9 @@ module.exports = async function handler(req, res) {
       console.error('Supabase error:', dbError);
     }
 
-    sendTelegram(formatMessage({ name, phone, message, source, calcData }));
+    const tgResult = await sendTelegram(formatMessage({ name, phone, message, source, calcData }));
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, telegram: !!tgResult });
   } catch (e) {
     console.error('Function error:', e);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
