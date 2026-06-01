@@ -1,39 +1,13 @@
 const PROJECTS = [
   {
-    folder: 'Object-1',
-    title: 'ЖК «Дубрава 2.0»',
-    badge: 'Санузел под ключ',
-    images: [
-      'image-1.webp', 'image-2.webp', 'image-3.webp', 'image-4.webp',
-      'image-5.webp', 'image-6.webp', 'image-7.webp', 'image-8.webp',
-      'image-9.webp', 'image-10.webp', 'image-11.webp',
-      'image-12.webp', 'image-13.webp', 'image-14.webp',
-      'image-15.webp', 'image-16.webp', 'image-17.webp',
-      'image-18.webp', 'image-19.webp', 'image-20.webp',
-      'image-21.webp', 'image-22.webp', 'image-23.webp',
-      'image-24.webp', 'image-25.webp', 'image-26.webp',
-      'image-27.webp', 'image-28.webp',
-    ],
-  },
-  {
     folder: 'Object-2',
     title: 'ЖК «Царево» частный дом',
     badge: 'Два санузла',
     images: [
-      'image-1.webp', 'image-2.webp', 'image-3.webp',
-      'image-4.webp', 'image-5.webp', 'image-6.webp',
-      'image-7.webp', 'image-8.webp', 'image-9.webp',
-      'image-10.webp', 'image-11.webp', 'image-12.webp',
-      'image-13.webp', 'image-14.webp', 'image-15.webp',
-      'image-16.webp', 'image-17.webp', 'image-18.webp',
-      'image-19.webp', 'image-20.webp', 'image-21.webp',
-      'image-22.PNG', 'image-23.webp',
-      'image-24.webp', 'image-25.webp', 'image-26.webp',
-      'image-27.webp', 'image-28.webp', 'image-29.webp',
-      'image-30.webp', 'image-31.webp', 'image-32.webp',
-      'image-33.webp', 'image-34.webp', 'image-35.webp',
-      'image-36.webp', 'image-37.webp', 'image-38.webp',
-      'image-39.webp', 'image-40.PNG',
+      ...Array.from({ length: 21 }, (_, i) => `image-${i + 1}.webp`),
+      'image-22.PNG', 'image-22.webp',
+      ...Array.from({ length: 17 }, (_, i) => `image-${i + 23}.webp`),
+      'image-40.PNG', 'image-40.webp',
     ],
   },
   {
@@ -41,56 +15,61 @@ const PROJECTS = [
     title: 'ЖК «Яшлек», ул. Тихая',
     badge: 'Санузел под ключ',
     images: [
-      'image-1.webp', 'image-2.webp',
-      'image-3.webp', 'image-4.webp', 'image-5.webp',
-      'image-6.webp', 'image-7.webp',
-      'image-8.webp', 'image-9.webp', 'image-10.webp',
-      'image-11.webp', 'image-12.webp', 'image-13.webp',
-      'image-14.webp', 'image-15.webp', 'image-16.webp',
-      'image-17.PNG', 'image-18.webp', 'image-19.webp',
-      'image-20.webp', 'image-21.webp',
+      ...Array.from({ length: 16 }, (_, i) => `image-${i + 1}.webp`),
+      'image-17.PNG', 'image-17.webp',
+      ...Array.from({ length: 4 }, (_, i) => `image-${i + 18}.webp`),
     ],
   },
   {
     folder: 'Object-4',
     title: 'Ул. 23 квартал, д.84',
     badge: 'Фартук + подсветка',
-    images: [
-      'image-1.webp', 'image-2.webp',
-      'image-3.webp', 'image-4.webp',
-    ],
+    images: ['image-1.webp', 'image-2.webp', 'image-3.webp', 'image-4.webp'],
   },
   {
     folder: 'Object-5',
     title: 'Сакуры, ул. Теплая, 35',
     badge: 'Первый этаж под ключ',
+    images: Array.from({ length: 39 }, (_, i) => `image-${i + 1}.webp`),
+  },
+  {
+    folder: 'Object-6',
+    title: 'Константиновка',
+    badge: 'Санузел под ключ с демонтажем',
     images: [
-      'image-1.webp', 'image-2.webp', 'image-3.webp',
-      'image-4.webp', 'image-5.webp', 'image-6.webp',
-      'image-7.webp', 'image-8.webp', 'image-9.webp',
-      'image-10.webp', 'image-11.webp', 'image-12.webp',
-      'image-13.webp',
-      'image-14.webp', 'image-15.webp',
-      'image-16.webp', 'image-17.webp', 'image-18.webp',
-      'image-19.webp', 'image-20.webp', 'image-21.webp',
-      'image-22.webp', 'image-23.webp', 'image-24.webp', 'image-25.webp',
-      'image-26.webp', 'image-27.webp', 'image-28.webp', 'image-29.webp',
-      'image-30.webp', 'image-31.webp', 'image-32.webp',
-      'image-33.webp', 'image-34.webp', 'image-35.webp',
-      'image-36.webp', 'image-37.webp', 'image-38.webp',
-      'image-39.webp',
+      '20260505_130330.webp', '20260505_130335.webp', '20260505_130337.webp',
+      'IMG_20260601_122304_414.webp', 'IMG_20260601_122304_415.webp',
+      'IMG_20260601_122304_416.webp', 'IMG_20260601_122304_418.webp',
+    ],
+  },
+  {
+    folder: 'Object-7',
+    title: 'Куюки, ул. 26 квартал',
+    badge: 'Санузел под ключ',
+    images: [
+      '20251004_142051_IMG_6326.webp', '20251004_142103_IMG_6329.webp',
+      '20251110_184751_IMG_6782.webp', '20251226_142023.webp',
+      '20251226_142039.webp',
+    ],
+  },
+  {
+    folder: 'Object-8',
+    title: 'Ул. Родина, д.17',
+    badge: 'Санузел под ключ',
+    images: [
+      '20240816_151242_IMG_1710.webp', '20240816_151258_IMG_1715.webp',
+      '20240816_151305_IMG_1716.webp', '20240816_151325_IMG_1717.webp',
+      '20240816_151343_IMG_1720.webp', '20240816_151357_IMG_1721.webp',
     ],
   },
 ];
 
 function imageUrl(folder, image) {
   const enc = s => encodeURIComponent(s).replace(/%2C/gi, ',').replace(/%2B/gi, '+');
-  // Serve WebP version (all images pre-converted, ~95% smaller)
   const webpName = image.replace(/\.(jpg|jpeg|png)$/i, '.webp');
   return `/images/${enc(folder)}/${enc(webpName)}`;
 }
 
-// Original URL for <picture> fallback
 function imageUrlOriginal(folder, image) {
   const enc = s => encodeURIComponent(s).replace(/%2C/gi, ',').replace(/%2B/gi, '+');
   return `/images/${enc(folder)}/${enc(image)}`;

@@ -1,13 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
+import { Navigation, Pagination, Autoplay, EffectFade, Keyboard } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 import { PROJECTS, imageUrl, imageUrlOriginal } from '../data/projectsData';
 
-// Сколько слайдов вперёд подгружать заранее
 const PRELOAD_AHEAD = 3;
 
 function SlideImage({ folder, img, index, alt, isFirst }) {
@@ -15,7 +14,6 @@ function SlideImage({ folder, img, index, alt, isFirst }) {
 
   return (
     <div className="projects-main__slide">
-      {/* Skeleton-заглушка пока картинка грузится */}
       {!loaded && <div className="projects-main__skeleton" />}
       <picture>
         <source srcSet={imageUrl(folder, img)} type="image/webp" />
@@ -33,10 +31,55 @@ function SlideImage({ folder, img, index, alt, isFirst }) {
   );
 }
 
+// ── Fullscreen Modal ───────────────────────────────────────────────
+function FullscreenModal({ project, initialIndex, onClose }) {
+  const folder = project.folder;
+  const images = project.images;
+
+  return (
+    <div className="fullscreen">
+      {/* Close button */}
+      <button className="fullscreen__close" onClick={onClose} aria-label="Закрыть">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Counter (e.g. "3 / 12") */}
+      <div className="fullscreen__counter" />
+
+      <Swiper
+        modules={[Navigation, Keyboard, EffectFade]}
+        effect="fade"
+        fadeEffect={{ crossFade: true }}
+        speed={400}
+        navigation
+        keyboard={{ enabled: true }}
+        slidesPerView={1}
+        initialSlide={initialIndex}
+        className="fullscreen__swiper"
+      >
+        {images.map((img, i) => (
+          <SwiperSlide key={i}>
+            <div className="fullscreen__slide">
+              <picture>
+                <source srcSet={imageUrl(folder, img)} type="image/webp" />
+                <img src={imageUrlOriginal(folder, img)} alt={`${project.title} — фото ${i + 1}`} className="fullscreen__img" />
+              </picture>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
+}
+
+// ── Main Component ─────────────────────────────────────────────────
 export default function Projects() {
   const [activeProject, setActiveProject] = useState(0);
   const [mainSwiper, setMainSwiper] = useState(null);
   const [visibleSlides, setVisibleSlides] = useState(() => new Set([0, 1, 2, 3]));
+  const [fullscreen, setFullscreen] = useState(null); // { projectIndex, slideIndex }
 
   const current = PROJECTS[activeProject];
 
@@ -55,7 +98,6 @@ export default function Projects() {
     });
   }, []);
 
-  // Preload первое изображение следующего проекта при наведении на thumb
   const handleThumbHover = useCallback((i) => {
     const p = PROJECTS[i];
     if (p && p.images[0]) {
@@ -66,6 +108,25 @@ export default function Projects() {
       document.head.appendChild(link);
     }
   }, []);
+
+  // Keyboard handler for closing fullscreen
+  useEffect(() => {
+    if (!fullscreen) return;
+    const handler = (e) => {
+      if (e.key === 'Escape') setFullscreen(null);
+    };
+    document.addEventListener('keydown', handler);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handler);
+      document.body.style.overflow = '';
+    };
+  }, [fullscreen]);
+
+  const openFullscreen = () => {
+    const slideIndex = mainSwiper?.activeIndex || 0;
+    setFullscreen({ projectIndex: activeProject, slideIndex });
+  };
 
   return (
     <section className="section" id="projects">
@@ -80,33 +141,40 @@ export default function Projects() {
             <span className="projects-main__badge">{current.badge}</span>
           </div>
 
-          <Swiper
-            key={activeProject}
-            modules={[Pagination, Autoplay, EffectFade]}
-            effect="fade"
-            fadeEffect={{ crossFade: true }}
-            speed={600}
-            pagination={{ clickable: true, dynamicBullets: true }}
-            autoplay={{ delay: 3500, disableOnInteraction: true, pauseOnMouseEnter: true }}
-            slidesPerView={1}
-            onSwiper={setMainSwiper}
-            onSlideChange={handleSlideChange}
-            className="projects-main__swiper"
-          >
-            {current.images.map((img, i) => (
-              <SwiperSlide key={i}>
-                {visibleSlides.has(i) && (
-                  <SlideImage
-                    folder={current.folder}
-                    img={img}
-                    index={i}
-                    alt={`${current.title} — фото ${i + 1}`}
-                    isFirst={i === 0}
-                  />
-                )}
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="projects-main__slider-wrap">
+            <Swiper
+              key={activeProject}
+              modules={[Pagination, Autoplay, EffectFade]}
+              effect="fade"
+              fadeEffect={{ crossFade: true }}
+              speed={600}
+              pagination={{ clickable: true, dynamicBullets: true }}
+              autoplay={{ delay: 3500, disableOnInteraction: true, pauseOnMouseEnter: true }}
+              slidesPerView={1}
+              onSwiper={setMainSwiper}
+              onSlideChange={handleSlideChange}
+              className="projects-main__swiper"
+            >
+              {current.images.map((img, i) => (
+                <SwiperSlide key={i}>
+                  {visibleSlides.has(i) && (
+                    <SlideImage
+                      folder={current.folder}
+                      img={img}
+                      index={i}
+                      alt={`${current.title} — фото ${i + 1}`}
+                      isFirst={i === 0}
+                    />
+                  )}
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <button className="projects-main__fullscreen" onClick={openFullscreen} aria-label="На весь экран">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Thumb slider */}
@@ -143,6 +211,15 @@ export default function Projects() {
           </Swiper>
         </div>
       </div>
+
+      {/* Fullscreen modal */}
+      {fullscreen && (
+        <FullscreenModal
+          project={PROJECTS[fullscreen.projectIndex]}
+          initialIndex={fullscreen.slideIndex}
+          onClose={() => setFullscreen(null)}
+        />
+      )}
     </section>
   );
 }
