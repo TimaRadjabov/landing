@@ -49,12 +49,18 @@ function sendTelegram(text) {
 }
 
 module.exports = async function handler(req, res) {
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // GET — проверка, что функция работает
+  if (req.method === 'GET') {
+    return res.status(200).json({ ok: true, status: 'alive' });
   }
 
   if (req.method !== 'POST') {
@@ -73,7 +79,7 @@ module.exports = async function handler(req, res) {
       process.env.SUPABASE_SERVICE_KEY,
     );
 
-    await supabase.from('leads').insert({
+    const { error: dbError } = await supabase.from('leads').insert({
       name: name || '',
       phone: phone.replace(/\D/g, ''),
       message: message || '',
@@ -81,11 +87,15 @@ module.exports = async function handler(req, res) {
       calc_data: calcData || null,
     });
 
+    if (dbError) {
+      console.error('Supabase error:', dbError);
+    }
+
     sendTelegram(formatMessage({ name, phone, message, source, calcData }));
 
-    return res.json({ ok: true });
+    return res.status(200).json({ ok: true });
   } catch (e) {
-    console.error('Server error:', e);
+    console.error('Function error:', e);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 };
