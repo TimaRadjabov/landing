@@ -1,0 +1,57 @@
+[
+  {
+    "id": "mpv739l9nh2e",
+    "name": "",
+    "phone": "79600378339",
+    "message": "",
+    "source": "calculator",
+    "calcData": {
+      "type": "Сан узел под ключ",
+      "area": "10 м²",
+      "condition": "Вторичка",
+      "price": "от 480 000 ₽ до 816 000 ₽"
+    },
+    "created_at": "2026-06-01T12:38:49.677Z"
+  },
+  {
+    "id": "mpv77lubgo9b",
+    "name": "",
+    "phone": "79600378449",
+    "message": "",
+    "source": "calculator",
+    "calcData": {
+      "type": "Сан узел под ключ",
+      "area": "10 м²",
+      "condition": "Вторичка",
+      "price": "от 480 000 ₽ до 816 000 ₽"
+    },
+    "created_at": "2026-06-01T12:42:12.179Z"
+  },
+  {
+    "id": "mpv78berlhnh",
+    "name": "тимур",
+    "phone": "79600378449",
+    "message": "порропа",
+    "source": "cta",
+    "calcData": null,
+    "created_at": "2026-06-01T12:42:45.315Z"
+  },
+  {
+    "id": "mpv8q0shutg8",
+    "name": "Тест",
+    "phone": "79991112233",
+    "message": "",
+    "source": "cta",
+    "calcData": null,
+    "created_at": "2026-06-01T13:24:30.977Z"
+  },
+  {
+    "id": "mpv8slz58yo9",
+    "name": "Тимурка",
+    "phone": "71212121212",
+    "message": "ыйыйsqsqs",
+    "source": "cta",
+    "calcData": null,
+    "created_at": "2026-06-01T13:26:31.745Z"
+  }
+]

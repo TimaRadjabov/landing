@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const STATUS = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
+
 const REPAIR_TYPES = [
   { id: 'turnkey', label: 'Сан узел под ключ', rate: 15000 },
   { id: 'cosmetic', label: 'Косметический', rate: 7000 },
@@ -12,6 +14,8 @@ const CONDITIONS = [
   { id: 'secondary', label: 'Вторичка', multiplier: 1.2 },
   { id: 'house', label: 'Загород', multiplier: 1.2 },
 ];
+
+const CONDITION_LABELS = { new: 'Новостройка', secondary: 'Вторичка', house: 'Загород' };
 
 function calcPrice(typeId, area, conditionId) {
   const type = REPAIR_TYPES.find((t) => t.id === typeId);
@@ -47,14 +51,59 @@ function formatPrice(n) {
   return n.toLocaleString('ru-RU');
 }
 
+function formatPhone(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (!digits) return '';
+  if (digits[0] === '8')
+    return '+7 ' + digits.slice(1, 4) + (digits[4] ? ' ' + digits.slice(4, 7) : '') + (digits[7] ? ' ' + digits.slice(7, 9) : '') + (digits[9] ? ' ' + digits.slice(9, 11) : '');
+  if (digits[0] === '7')
+    return '+' + digits.slice(0, 1) + ' ' + digits.slice(1, 4) + (digits[4] ? ' ' + digits.slice(4, 7) : '') + (digits[7] ? ' ' + digits.slice(7, 9) : '') + (digits[9] ? ' ' + digits.slice(9, 11) : '');
+  return '+7 ' + digits.slice(0, 3) + (digits[3] ? ' ' + digits.slice(3, 6) : '') + (digits[6] ? ' ' + digits.slice(6, 8) : '') + (digits[8] ? ' ' + digits.slice(8, 10) : '');
+}
+
 export default function Calculator() {
   const [type, setType] = useState('turnkey');
   const [area, setArea] = useState(10);
   const [condition, setCondition] = useState('secondary');
+  const [calcPhone, setCalcPhone] = useState('');
+  const [calcStatus, setCalcStatus] = useState(STATUS.IDLE);
+  const [calcError, setCalcError] = useState('');
 
   const minArea = type === 'turnkey' ? 1 : 10;
 
   const price = calcPrice(type, area, condition);
+  const isPhoneValid = calcPhone.replace(/\D/g, '').length >= 10;
+
+  const handleCalcSubmit = async (e) => {
+    e.preventDefault();
+    if (!isPhoneValid || calcStatus === STATUS.LOADING) return;
+
+    setCalcStatus(STATUS.LOADING);
+    setCalcError('');
+
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: calcPhone.trim(),
+          source: 'calculator',
+          calcData: {
+            type: REPAIR_TYPES.find(t => t.id === type)?.label || type,
+            area: `${area} м²`,
+            condition: CONDITION_LABELS[condition] || condition,
+            price: `от ${formatPrice(price.min)} ₽${price.max === Infinity ? '' : ' до ' + formatPrice(price.max) + ' ₽'}`,
+          },
+        }),
+      });
+
+      if (!res.ok) throw new Error('Server error');
+      setCalcStatus(STATUS.SUCCESS);
+    } catch {
+      setCalcStatus(STATUS.ERROR);
+      setCalcError('Не удалось отправить. Попробуйте ещё раз.');
+    }
+  };
 
   return (
     <section className="section" id="calculator">
@@ -115,35 +164,65 @@ export default function Calculator() {
           </div>
 
           <div className="calculator__result" style={{ flex: 1 }}>
-            <div>
-              <div className="calculator__label">Ориентировочная стоимость работ</div>
-              <div className="calculator__price">
-                {formatPrice(price.min)} ₽
-                <span className="calculator__price-range">
-                  {' '}— {price.max === Infinity ? '∞' : formatPrice(price.max) + ' ₽'}
-                </span>
+            {calcStatus === STATUS.SUCCESS ? (
+              <div className="calculator__calc-success">
+                <div className="calculator__success-icon">✓</div>
+                <div className="calculator__label">Заявка принята!</div>
+                <div className="calculator__note">Перезвоним в течение 30 минут</div>
+                <button
+                  className="btn btn--primary"
+                  onClick={() => setCalcStatus(STATUS.IDLE)}
+                  style={{ marginTop: 16 }}
+                >
+                  Отправить ещё
+                </button>
               </div>
-              {price.months && (
-                <div className="calculator__meta">
-                  Срок: {price.months} месяца
+            ) : (
+              <>
+                <div>
+                  <div className="calculator__label">Ориентировочная стоимость работ</div>
+                  <div className="calculator__price">
+                    {formatPrice(price.min)} ₽
+                    <span className="calculator__price-range">
+                      {' '}— {price.max === Infinity ? '∞' : formatPrice(price.max) + ' ₽'}
+                    </span>
+                  </div>
+                  {price.months && (
+                    <div className="calculator__meta">
+                      Срок: {price.months} месяца
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="calculator__form">
-              <div className="calculator__label">Получить точную смету:</div>
-              <div className="calculator__input-group">
-                <input
-                  type="tel"
-                  className="calculator__input"
-                  placeholder="+7 ___ ___ __ __"
-                />
-                <button className="btn btn--primary">Замер</button>
-              </div>
-              <div className="calculator__note">
-                Точная цена — после замера
-              </div>
-            </div>
+                <form className="calculator__form" onSubmit={handleCalcSubmit}>
+                  <div className="calculator__label">Получить точную смету:</div>
+                  <div className="calculator__input-group">
+                    <input
+                      type="tel"
+                      className="calculator__input"
+                      placeholder="+7 ___ ___ __ __"
+                      value={calcPhone}
+                      onChange={(e) => setCalcPhone(formatPhone(e.target.value))}
+                      disabled={calcStatus === STATUS.LOADING}
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className={`btn btn--primary${calcStatus === STATUS.LOADING ? ' btn--loading' : ''}`}
+                      disabled={!isPhoneValid || calcStatus === STATUS.LOADING}
+                    >
+                      {calcStatus === STATUS.LOADING ? <span className="btn__spinner" /> : 'Замер'}
+                    </button>
+                  </div>
+                  {calcStatus === STATUS.ERROR && (
+                    <div className="cta__error" style={{ marginTop: 8 }}>{calcError}</div>
+                  )}
+                  <div className="calculator__note">
+                    Точная цена — после замера
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>

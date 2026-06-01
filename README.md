@@ -1,8 +1,49 @@
-# React + Vite
+# PULSE.remont — Лендинг + API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Разработка (локально, два терминала)
 
-Currently, two official plugins are available:
+```bash
+# Терминал 1 — API-сервер (порт 3001)
+cd api-server && npm start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Терминал 2 — Vite dev server (порт 5173)
+npm run dev
+```
+
+Формы отправляются через Vite proxy на Express-сервер.
+
+## Деплой на Vercel
+
+1. Залей репозиторий на GitHub
+2. В Vercel Dashboard → Import → выбери репозиторий
+3. В настройках проекта добавь **Environment Variables**:
+
+| Variable | Value |
+|---|---|
+| `SUPABASE_URL` | URL твоего Supabase проекта |
+| `SUPABASE_SERVICE_KEY` | service_role ключ (из Project Settings → API) |
+| `TG_BOT_TOKEN` | Токен бота |
+| `TG_CHAT_ID` | ID группы для уведомлений |
+
+4. Deploy — Vercel сам запустит сборку и развернёт сайт
+
+На Vercel API работает через Serverless Function (`api/lead.cjs`), не через Express.
+
+## Как хранятся заявки
+
+- **Локально**: `api-server/leads.json` (всегда) + Supabase (если настроен)
+- **На Vercel**: только Supabase (файлового хранилища нет)
+
+## Настройка Supabase (сделано)
+
+Таблица `leads` создана. Подробности в `api-server/migrations/001_create_leads.sql`.
+
+## Настройка Telegram (сделано)
+
+Уведомления о новых заявках приходят в Telegram-группу.
+
+## Эндпоинты
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| POST | /api/lead | Создать заявку |

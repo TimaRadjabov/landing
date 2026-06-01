@@ -5,11 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "cd api-server && npm run dev",
     "build": "vite build",
+    "start": "NODE_ENV=production node api-server/index.js",
+    "deploy": "npm run build && npm start",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "swiper": "^11.2.10"
