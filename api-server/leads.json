@@ -53,5 +53,20 @@
     "source": "cta",
     "calcData": null,
     "created_at": "2026-06-01T13:26:31.745Z"
+  },
+  {
+    "id": "mqpdizborm4p",
+    "name": "",
+    "phone": "71212312312",
+    "address": "",
+    "message": "",
+    "source": "calculator",
+    "calcData": {
+      "type": "Сан узел под ключ",
+      "area": "10 м²",
+      "condition": "Вторичка",
+      "price": "от 480 000 ₽ до 816 000 ₽"
+    },
+    "created_at": "2026-06-22T15:32:05.844Z"
   }
 ]
