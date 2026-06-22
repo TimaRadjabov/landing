@@ -111,8 +111,8 @@ app.post('/api/lead', async (req, res) => {
       created_at: new Date().toISOString(),
     };
 
-    // 1. Всегда сохраняем в JSON
-    saveLead(lead);
+    // 1. Сохраняем в JSON (резерв, не критично)
+    try { saveLead(lead); } catch (e) { console.warn('JSON save skipped:', e.message); }
 
     // 2. Supabase (если настроен)
     if (supabase) {
